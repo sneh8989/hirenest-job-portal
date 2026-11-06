@@ -1,0 +1,508 @@
+================================================================================
+HIRENEST — COMPLETE EXECUTION AND FUNCTIONAL TESTING GUIDE
+Project: HireNest ("Your next opportunity starts here")
+Target Platform: Windows 10 / 11 (PowerShell)
+================================================================================
+
+TABLE OF CONTENTS:
+1. PREREQUISITES & SYSTEM REQUIREMENTS
+2. STEP-BY-STEP PROJECT EXECUTION (STARTING BACKEND & FRONTEND)
+3. PRE-CONFIGURED TEST CREDENTIALS & DEMO ACCOUNTS
+4. AUTOMATED TESTS EXECUTION (BACKEND PYTEST & FRONTEND BUILD)
+5. STEP-BY-STEP FUNCTIONALITY TESTING WORKFLOW:
+   5.1 Public Portal & Job Discovery
+   5.2 Authentication & Security Verification
+   5.3 Applicant Workspace (9 Features)
+   5.4 Recruiter Workspace (8 Features)
+   5.5 Administrator Workspace (8 Features)
+   5.6 AI Features & Decision Transparency
+6. API TESTING VIA INTERACTIVE SWAGGER UI
+7. TROUBLESHOOTING & WINDOWS COMMON ISSUES
+
+================================================================================
+1. PREREQUISITES & SYSTEM REQUIREMENTS
+================================================================================
+Before running the project, verify that the following tools are installed:
+
+1. Python 3.11 or higher (Tested and certified on Python 3.14.4)
+   Check: python --version
+2. Node.js v18 or higher & npm (Tested on Node v24 / npm 11)
+   Check: node -v && npm -v
+3. PowerShell with execution permissions:
+   Run in PowerShell as Administrator if scripts are restricted:
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Project Root Path:
+D:\Job-Portal (or your workspace directory)
+
+================================================================================
+2. STEP-BY-STEP PROJECT EXECUTION
+================================================================================
+
+METHOD A: ONE-CLICK AUTOMATION SCRIPTS (RECOMMENDED)
+----------------------------------------------------
+Step 1: Open PowerShell at project root (D:\Job-Portal)
+Step 2: Initialize dependencies and seed the database:
+        .\scripts\setup-windows.ps1
+        (This creates backend\venv, installs pip requirements, installs npm
+         packages, and seeds realistic users, jobs, applications, and logs).
+
+Step 3: In Terminal 1, start the FastAPI Backend Server:
+        .\scripts\run-backend.ps1
+        -> Backend runs on: http://127.0.0.1:8000
+        -> Swagger API Docs: http://127.0.0.1:8000/docs
+
+Step 4: Open a second PowerShell terminal in D:\Job-Portal, and start the Frontend:
+        .\scripts\run-frontend.ps1
+        -> Frontend web app runs on: http://127.0.0.1:5173
+
+Step 5: Open your web browser and navigate to:
+        http://127.0.0.1:5173
+
+
+METHOD B: MANUAL STEP-BY-STEP COMMANDS
+--------------------------------------
+If you prefer running commands manually without PowerShell scripts:
+
+--- BACKEND EXECUTION ---
+1. Open PowerShell and navigate to backend directory:
+   cd D:\Job-Portal\backend
+
+2. Create virtual environment (if not already created):
+   python -m venv venv
+
+3. Activate virtual environment:
+   .\venv\Scripts\Activate.ps1
+
+4. Install backend dependencies:
+   pip install -r requirements.txt
+
+5. Initialize and populate database with seed data:
+   python -m app.data.seed_data
+
+6. Start FastAPI server with live reload:
+   python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+
+--- FRONTEND EXECUTION ---
+1. Open a new PowerShell window and navigate to frontend directory:
+   cd D:\Job-Portal\frontend
+
+2. Install npm packages:
+   npm install
+
+3. Start Vite dev server:
+   npm run dev -- --host 127.0.0.1 --port 5173
+
+4. Open your browser at:
+   http://127.0.0.1:5173
+
+================================================================================
+3. PRE-CONFIGURED TEST CREDENTIALS & DEMO ACCOUNTS
+================================================================================
+The application is pre-seeded with realistic data across all 3 user roles.
+On the Login page (http://127.0.0.1:5173/login), you can click any of the 
+"Demo Quick Fill" buttons for instant 1-click credential population:
+
++---------------+--------------------+-------------------------------+---------------+
+| ROLE          | NAME               | EMAIL                         | PASSWORD      |
++---------------+--------------------+-------------------------------+---------------+
+| Applicant 1   | Alex Rivera        | alex.dev@gmail.com            | Applicant@123 |
+| Applicant 2   | Maya Lin           | maya.ux@gmail.com             | Applicant@123 |
+| Recruiter 1   | Sarah Jenkins      | sarah.recruiter@techpulse.io  | Recruiter@123 |
+| Recruiter 2   | David Chen         | david.hiring@greenwave.co     | Recruiter@123 |
+| Administrator | Eleanor Vance      | admin@hirenest.com            | Admin@123     |
++---------------+--------------------+-------------------------------+---------------+
+
+================================================================================
+4. AUTOMATED TESTS EXECUTION
+================================================================================
+Run the complete automated test suite (backend pytest + frontend production build):
+
+In PowerShell from D:\Job-Portal:
+.\scripts\run-tests.ps1
+
+What this runs:
+1. Backend Tests (pytest):
+   - Path: backend/tests/test_api.py
+   - Validates Health Check endpoint
+   - Validates JWT Login for Applicant, Recruiter, and Admin
+   - Validates Invalid credential rejection (401)
+   - Validates Job search and multi-criteria filters
+   - Validates Transparent AI Match Score computation
+   - Validates Application submission and duplicate application prevention (400)
+   - Validates Role-Based Access Control (Applicant blocked from Admin APIs with 403)
+   - Validates Admin Dashboard Metrics & User Moderation endpoints
+   Expected output: 10 passed in ~1.2s (0 failures, 0 warnings)
+
+2. Frontend Build & Type Validation (tsc & vite build):
+   - Compiles TypeScript in strict mode
+   - Generates production bundle in frontend/dist/
+   Expected output: "built in ~1s (0 errors)"
+
+================================================================================
+5. STEP-BY-STEP FUNCTIONALITY TESTING WORKFLOW
+================================================================================
+
+--------------------------------------------------------------------------------
+5.1 PUBLIC PORTAL & JOB DISCOVERY
+--------------------------------------------------------------------------------
+1. Test Landing Page:
+   - Navigate to: http://127.0.0.1:5173/
+   - Verify Header: Logo "HireNest", Navigation links (Jobs, Companies, Career Resources, About, Login, Sign Up).
+   - Verify Hero Section: Search bar with "Job title, skill, or company" and "Location" inputs.
+   - Verify Popular Search Category Pills: Click any pill (e.g., "Engineering", "Design") -> navigates to filtered jobs.
+   - Verify Platform Stats: Dynamic counters (Active Vacancies, Partner Companies, Candidates Placed).
+   - Verify Featured Jobs Grid: Cards display title, company name, location, salary range, and job tags.
+   - Verify "How HireNest Works" section: 3-step workflow explanation.
+   - Verify Footer: Links and platform disclaimer.
+
+2. Test Job Search Page:
+   - Click "Jobs" in the top navbar (http://127.0.0.1:5173/jobs).
+   - Search Query: Type "React" or "Python" in the search box -> list updates dynamically.
+   - Filter by Job Type: Select "Remote", "Full-time", or "Hybrid" -> results filter accordingly.
+   - Filter by Experience Level: Select "Mid-Level" or "Senior" -> list refreshes.
+   - Filter by Salary: Drag or select salary range -> verify list respects minimum salary.
+   - Sort By: Change sorting from "Newest First" to "Salary: High to Low".
+   - Clear Filters: Click "Reset Filters" -> all jobs return.
+
+3. Test Job Details Page:
+   - Click any job card (e.g., "Senior Full-Stack Engineer" at TechPulse).
+   - Verify Job Overview: Title, Company Name, Location, Experience, Work Arrangement, Salary.
+   - Verify Content: Detailed Description, Responsibilities, Required Skills, Preferred Skills.
+   - Verify Company Snapshot: Company size, industry, website, and verification badge.
+   - Verify "Similar Jobs" sidebar recommendations.
+
+4. Test Companies Directory:
+   - Click "Companies" in the top navbar (http://127.0.0.1:5173/companies).
+   - Verify company cards (TechPulse Innovations, GreenWave Solutions, CloudScale Networks).
+   - Click on "TechPulse Innovations" -> view company details and all open vacancies posted by this employer.
+
+5. Test Career Resources & About Pages:
+   - Click "Career Resources" -> view interview guides, resume writing checklists, and salary negotiation tips.
+   - Click "About" -> view HireNest's mission, design philosophy, and platform governance principles.
+
+--------------------------------------------------------------------------------
+5.2 AUTHENTICATION & SECURITY VERIFICATION
+--------------------------------------------------------------------------------
+1. Test Applicant Registration:
+   - Navigate to: http://127.0.0.1:5173/register
+   - Select Role: "Job Seeker / Applicant"
+   - Fill in: Full Name, Email (e.g., "test.applicant@example.com"), Password ("Test@1234").
+   - Click "Create Account" -> Success notification appears -> Redirects to Applicant Dashboard.
+
+2. Test Recruiter Registration:
+   - Logout, then navigate back to: http://127.0.0.1:5173/register
+   - Select Role: "Recruiter / Employer"
+   - Enter Company Name: "Apex Corp"
+   - Fill in: Recruiter Name, Work Email ("recruiter@apexcorp.io"), Password ("Recruiter@1234").
+   - Click "Create Account" -> Redirects to Recruiter Dashboard.
+
+3. Security Check — Administrator Role Isolation:
+   - Verify that the Registration form DOES NOT provide an "Administrator" option.
+   - Attempting to pass `role: "admin"` via raw POST /api/auth/register will be rejected by server validation.
+
+4. Test Login & Quick-Fill:
+   - Navigate to: http://127.0.0.1:5173/login
+   - Click "Alex Rivera (Applicant)" quick fill button -> Inputs auto-fill -> Click "Sign in to HireNest".
+   - Verify token stored in localStorage and user redirected to `/applicant/dashboard`.
+
+5. Test Invalid Credentials Rejection:
+   - Log out, enter email "alex.dev@gmail.com" with password "WrongPassword".
+   - Click "Sign in" -> Verify error alert: "Invalid email or password."
+
+6. Test Role-Based Route Protection (RBAC):
+   - While logged in as Applicant Alex Rivera, attempt to manually navigate to `http://127.0.0.1:5173/recruiter/dashboard` or `http://127.0.0.1:5173/admin/dashboard`.
+   - Verify that you are immediately redirected away to your authorized dashboard with an access denied guard.
+
+--------------------------------------------------------------------------------
+5.3 APPLICANT WORKSPACE TESTING
+--------------------------------------------------------------------------------
+Log in as: alex.dev@gmail.com / Applicant@123
+
+1. Applicant Dashboard (/applicant/dashboard):
+   - Verify personalized greeting: "Welcome back, Alex Rivera".
+   - Inspect live KPI metrics:
+     * Total Applications (reflects actual applications count in DB).
+     * Shortlisted (actual count).
+     * Upcoming Interviews (actual count).
+     * Profile Completion percentage.
+   - Verify "Recommended Jobs" widget showing personalized jobs matching Alex's skill set.
+   - Verify "Recent Application Activity" timeline.
+
+2. AI Skill Gap Analyzer (/applicant/skills):
+   - Click "Skill Gap Analyzer" in sidebar.
+   - Use the dropdown to select a target vacancy (e.g., "Senior Full-Stack Engineer" or "DevOps Architect").
+   - Click "Analyze Skill Gap":
+     * Overall match score percentage (e.g., 78%).
+     * "Skills You Have" badges (e.g., React, TypeScript, Python, Node.js).
+     * "Skills to Acquire" badges (e.g., GraphQL, Docker, Kubernetes).
+     * Prioritized Learning Roadmap with High/Medium/Low priority tags, curated resources, and recommended hands-on portfolio projects.
+     * Estimated time to job readiness.
+
+3. Applying for a Job (Application Workflow):
+   - Navigate to "Find Jobs" (/jobs) from the sidebar.
+   - Choose a job you haven't applied for yet (e.g., "Data Engineer" or "Cloud Infrastructure Specialist").
+   - Click "View Details" -> Click the primary green "Apply Now" button.
+   - Application Modal opens:
+     * Review pre-filled applicant profile summary.
+     * Enter Cover Note / Message to Recruiter: "I have 5 years experience with distributed systems."
+     * Select Resume: Use active uploaded resume.
+     * Click "Submit Application".
+   - Verify success modal: "Application Submitted Successfully!".
+   - Attempt to click "Apply Now" again on the same job -> Verify button disabled with message "Already Applied" (Duplicate application prevented).
+
+4. My Applications & Application Timeline (/applicant/applications):
+   - Click "My Applications" in sidebar.
+   - Verify application cards displaying Job Title, Company, Date Applied, and Status Badge (e.g., Applied, Under Review, Shortlisted, Interview Scheduled).
+   - Click "View Details / Timeline" on any application:
+     * Modal opens showing interactive step-by-step history:
+       Step 1: Applied (timestamp)
+       Step 2: Under Review (recruiter reviewed profile)
+       Step 3: Shortlisted / Interview Scheduled
+     * Shows recruiter feedback or interview invitation link when scheduled.
+
+5. Saved Jobs (/applicant/saved):
+   - Go to "Find Jobs", click the Bookmark icon on any job card.
+   - Navigate to "Saved Jobs" in sidebar.
+   - Verify the bookmarked job appears in the list.
+   - Click the "Remove" trash icon -> job is removed from saved list.
+
+6. Profile Management (/applicant/profile):
+   - Click "My Profile" in sidebar.
+   - Edit Headline: Change to "Lead Full-Stack Engineer | React & Python Specialist".
+   - Add/Remove Skills: Type "GraphQL" and press Enter.
+   - Add Work Experience / Education entry.
+   - Click "Save Changes" -> Verify persistent update and completion percentage increase.
+
+7. Resume & Document Manager (/applicant/resume):
+   - Click "Resume" in sidebar.
+   - Upload a test PDF or DOCX file (under 5MB).
+   - Verify the file is uploaded, verified for MIME safety, and listed with upload date and file size.
+   - Click "Download / Preview" to verify file retrieval.
+
+8. Interview Invitations (/applicant/interviews):
+   - Click "Interviews" in sidebar.
+   - Inspect scheduled interviews:
+     * View Interviewer name, Company, Date & Time, Timezone, Mode (Google Meet / Zoom / Office).
+     * View preparation notes and meeting link.
+   - Click "Accept Invitation" -> Status updates to "Accepted" in both applicant and recruiter portals.
+   - (Or click "Decline Invitation" with optional note).
+
+9. Job Alerts & Settings (/applicant/alerts & /applicant/settings):
+   - Create a Job Alert for keyword "React", Location "Remote", Frequency "Daily".
+   - Toggle notification preferences (Email alerts, In-app updates, Application status changes).
+
+--------------------------------------------------------------------------------
+5.4 RECRUITER WORKSPACE TESTING
+--------------------------------------------------------------------------------
+Log in as: sarah.recruiter@techpulse.io / Recruiter@123
+
+1. Recruiter Dashboard (/recruiter/dashboard):
+   - Verify live metrics: Active Jobs, Total Applicants, Shortlisted, Interviews Scheduled.
+   - Inspect "Hiring Funnel Distribution" chart (Applied -> Review -> Shortlisted -> Interview -> Selected).
+   - Inspect "Upcoming Interviews" widget.
+
+2. Job Posting Management (/recruiter/jobs):
+   - Click "My Jobs" in sidebar.
+   - View existing vacancies with status pills (Published, Draft, Closed).
+   - Test "Create New Job":
+     * Click "+ Post New Job" (navigates to /recruiter/jobs/new).
+     * Fill Title: "Senior AI Solutions Engineer".
+     * Category: "Engineering".
+     * Employment Type: "Full-time", Work Arrangement: "Hybrid".
+     * Location: "San Francisco, CA".
+     * Experience: "5+ years", Salary: "$150,000 - $180,000".
+     * Add Required Skills: "Python", "PyTorch", "FastAPI".
+     * Add Preferred Skills: "Docker", "LangChain".
+     * Description & Responsibilities.
+     * Click "Publish Job" (or "Save Draft").
+     * Verify the new job appears on the public jobs page and recruiter jobs list.
+   - Test "Edit Job":
+     * Click Edit on any existing job -> update salary or deadline -> Save -> Verify changes.
+   - Test "Close Job":
+     * Toggle status from "Published" to "Closed" -> job is archived from public search.
+
+3. Candidate Management Table (/recruiter/applicants):
+   - Click "Applicants" in sidebar.
+   - View table of all candidates who applied to your vacancies.
+   - Columns: Candidate Name, Job Applied For, Date, AI Match Score, Application Status, Actions.
+   - Test Filters: Filter by Job, Filter by Status (e.g. "Under Review").
+   - Inspect AI Match Score pill (e.g. "88% Match" with green indicator).
+   - Click "View Profile / Resume" -> Modal displays full candidate profile, skills, experience, and uploaded resume link.
+
+4. Interactive Kanban Hiring Pipeline (/recruiter/pipeline):
+   - Click "Hiring Pipeline" in sidebar.
+   - Select a vacancy from the top dropdown (e.g. "Senior Full-Stack Engineer").
+   - View Kanban board with 6 columns:
+     [Applied] -> [Under Review] -> [Shortlisted] -> [Interview] -> [Selected] -> [Rejected]
+   - Test Moving a Candidate:
+     * Drag or click "Move to Next Stage" on candidate Alex Rivera (move from "Under Review" to "Shortlisted" or "Interview").
+     * Status updates immediately in UI and persists to the database.
+     * Verify that an entry is automatically created in the candidate's application timeline!
+     * Log in as Alex Rivera in another tab to confirm Alex immediately sees status "Shortlisted" on their dashboard!
+
+5. Interview Scheduling (/recruiter/interviews):
+   - Click "Interviews" in sidebar.
+   - Click "+ Schedule Interview":
+     * Select Candidate: Alex Rivera.
+     * Select Vacancy: Senior Full-Stack Engineer.
+     * Choose Date & Time (e.g. Tomorrow at 10:00 AM EST).
+     * Select Mode: "Online Video (Google Meet)".
+     * Meeting Link: "https://meet.google.com/abc-defg-hij".
+     * Add Preparation Notes: "Please be ready to discuss system architecture."
+     * Click "Send Interview Invitation".
+   - Verify interview card appears in Recruiter's interview list with status "Scheduled".
+   - Verify Alex Rivera receives an in-app notification and sees the invitation in their portal!
+
+6. Company Profile & Verification Request (/recruiter/company):
+   - Click "Company Profile" in sidebar.
+   - Edit Company Bio, Website, Headquarters, Company Size.
+   - Click "Request Company Verification":
+     * Submit Business Registration Number / LinkedIn URL.
+     * Request enters Admin Verification Queue.
+   - Shows badge "Verification Pending Admin Review".
+
+7. Analytics & Training (/recruiter/analytics & /recruiter/training):
+   - View recruitment velocity, application volume by day, and candidate drop-off metrics.
+   - View Recruiter Playbooks: Hiring guides, bias-free interview checklists, and best practices.
+
+--------------------------------------------------------------------------------
+5.5 ADMINISTRATOR WORKSPACE TESTING
+--------------------------------------------------------------------------------
+Log in as: admin@hirenest.com / Admin@123
+
+1. Admin Dashboard (/admin/dashboard):
+   - Verify platform KPIs computed from database:
+     * Total Registered Users.
+     * Total Applicants.
+     * Total Recruiters.
+     * Verified Companies.
+     * Active Job Postings.
+     * Pending Moderation Reports.
+   - View "System Health" indicators (FastAPI backend status: Healthy, Database: Connected, AI Engine: Operational).
+   - View "Recent Audit Activity" feed.
+
+2. User Management (/admin/users):
+   - Click "Manage Users" in sidebar.
+   - Search users by name or email (e.g. "Alex" or "Sarah").
+   - Filter by Role: "Applicant", "Recruiter", "Admin".
+   - View User Account Details (joined date, last active, active jobs/applications).
+   - Test "Suspend Account":
+     * Click "Suspend" on a test account -> Confirm action -> Status updates to "Suspended".
+     * Suspended user is locked out from logging in.
+     * Click "Reactivate" -> User restored to "Active".
+     * Verify an Audit Log entry is automatically created!
+
+3. Recruiter Verification Queue (/admin/verification):
+   - Click "Recruiter Verification" in sidebar.
+   - View pending verification requests from employer companies.
+   - Inspect company registration details and website.
+   - Click "Approve Verification" with optional note:
+     * Company status updates to "Verified".
+     * Verified checkmark badge appears on company cards across the public site.
+     * (Or click "Reject" with explanation).
+
+4. Job Moderation (/admin/jobs):
+   - Click "Job Listings" in sidebar.
+   - View all platform vacancies across all recruiters.
+   - Test "Moderate / Flag Job":
+     * Review posting details.
+     * Click "Take Down / Archive Job" with reason: "Policy violation / misleading salary".
+     * Job is immediately unpublished from public discovery.
+
+5. Content Reports Queue (/admin/reports):
+   - Click "Reported Content" in sidebar.
+   - View user-submitted reports on suspicious postings or spam.
+   - Inspect Reporter information, reported job, and user-provided details.
+   - Resolve report: Select "Action Taken" or "Dismissed" and submit resolution notes.
+
+6. Tamper-Resistant Audit Logs (/admin/audit-logs):
+   - Click "Audit Logs" in sidebar.
+   - Inspect table of recorded actions:
+     * Action Type (e.g., USER_SUSPENDED, COMPANY_VERIFIED, JOB_MODERATED, LOGIN_SUCCESS).
+     * Performed By (Admin email).
+     * Target Entity & ID.
+     * IP Address & Timestamp.
+   - Verify all sensitive operations generate immutable audit records.
+
+7. Platform Settings & Payments (/admin/settings & /admin/payments):
+   - View demonstration payments overview (Recruiter subscription tiers and invoices).
+   - Configure global platform toggles (Require company verification before publishing, AI matching engine selection).
+
+--------------------------------------------------------------------------------
+5.6 AI FEATURES & DECISION TRANSPARENCY
+--------------------------------------------------------------------------------
+1. Transparent Job Match Scoring:
+   - HireNest uses a deterministic scoring engine:
+     * 70% Weight on Required Skills matched.
+     * 30% Weight on Preferred Skills matched.
+   - Test this by comparing Alex Rivera (Skills: React, TypeScript, Python, Node.js) against a job requiring "React, TypeScript, Python":
+     * Match score is high (~85-95%).
+     * Detailed skill breakdown lists matched vs missing skills with clear textual explanation.
+   - Ethical Guarantee:
+     * No candidate is ever automatically rejected by AI.
+     * Scores are clearly labeled as "Advisory AI Match Score".
+     * Recruiters make all final hiring decisions.
+
+2. Fallback Engine Resilience:
+   - Even without third-party OpenAI or Gemini API keys configured, the AI features function completely through the built-in deterministic ontology engine without throwing 500 errors.
+
+================================================================================
+6. API TESTING VIA INTERACTIVE SWAGGER UI
+================================================================================
+FastAPI automatically serves interactive Swagger documentation:
+
+1. Open http://127.0.0.1:8000/docs in your browser.
+2. Authenticate:
+   - Click "Authorize" (top right padlock).
+   - Or test the `POST /api/auth/login` endpoint with:
+     {
+       "email": "admin@hirenest.com",
+       "password": "Admin@123"
+     }
+   - Copy the returned `access_token` and paste it into the Authorize modal:
+     Bearer <access_token>
+3. Test Key Endpoints:
+   - `GET /api/health` -> Returns `{"status": "healthy", "version": "1.0.0", "ai_engine": "deterministic"}`
+   - `GET /api/jobs` -> Returns paginated job listings with total, page, items.
+   - `POST /api/ai/match-score` -> Submit candidate_id and job_id to get transparent score.
+   - `POST /api/ai/skill-gap` -> Submit applicant_id and job_id to get full roadmap.
+   - `GET /api/admin/metrics` -> Returns platform-wide KPIs.
+
+================================================================================
+7. TROUBLESHOOTING & WINDOWS COMMON ISSUES
+================================================================================
+
+Issue 1: "[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+Cause: Port 8000 is already in use by another running uvicorn process.
+Solution:
+In PowerShell, check what is using port 8000:
+   netstat -ano | findstr :8000
+Kill the process using its PID (e.g. PID 16120):
+   taskkill /F /PID 16120
+Then re-run: .\scripts\run-backend.ps1
+
+Issue 2: "Port 5173 is in use, trying another one... http://127.0.0.1:5174/"
+Cause: Port 5173 is already running another Vite instance.
+Solution:
+Kill existing node processes or find PID:
+   netstat -ano | findstr :5173
+   taskkill /F /PID <PID>
+Then re-run: .\scripts\run-frontend.ps1
+
+Issue 3: "Execution of scripts is disabled on this system"
+Cause: PowerShell script execution policy.
+Solution:
+Run once in your PowerShell terminal:
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Issue 4: Need to completely reset and wipe the database:
+Solution:
+Simply run:
+   .\scripts\seed-data.ps1
+This drops all existing SQLite tables, recreates the schema, and reseeds fresh demo data.
+
+================================================================================
+HireNest — Full-stack SaaS Job Portal Platform
+Documentation and test guidelines verified and certified.
+================================================================================
