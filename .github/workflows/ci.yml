@@ -1,3 +1,4 @@
+
 name: CI Pipeline
 
 on:
@@ -34,6 +35,8 @@ jobs:
       - name: Run Backend Pytest Suite
         run: |
           python -m pytest backend/tests -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
 
   frontend-build:
     name: Frontend Lint & Build
@@ -61,4 +64,3 @@ jobs:
       - name: Typecheck and Production Build
         working-directory: frontend
         run: npm run build
-
