@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HireNest — Enterprise Full-Stack Job Portal & Talent Acquisition Platform
 
 [![CI Pipeline](https://github.com/snehkheni/HireNest/actions/workflows/ci.yml/badge.svg)](https://github.com/snehkheni/HireNest/actions)
@@ -441,3 +442,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 ---
 
 *(Crafted with care for professional software engineering portfolios).*
+=======
+# hirenest-job-portal
+A full-stack job portal built with React, TypeScript, FastAPI and SQLite, featuring applicant and recruiter dashboards, job management, application tracking, admin controls and AI-powered job matching.
+>>>>>>> e4293cbd5b70119641c5d0b2f55ba3548dd768a6
